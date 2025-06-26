@@ -14,3 +14,4 @@ RUN mvn clean verify -Dspring.profiles.active=test
 
 # Optional: build jar
 # RUN mvn package -DskipTests
+
