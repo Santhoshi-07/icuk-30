@@ -1,11 +1,23 @@
-# Use official Maven image with JDK 17
-FROM maven:3.9.6-eclipse-temurin-17 as build
+# Use Maven with JDK 8 (compatible with Spring Boot 2.2.2)
+FROM maven:3.6.3-jdk-8 AS build
 
-# Set working directory in the container
+# Set working directory
 WORKDIR /app
 
-# Copy source code to container
-COPY . .
+# Copy pom.xml and download dependencies
+COPY pom.xml .
+RUN mvn dependency:go-offline
 
-# Build the project and run tests (includes Sonar if configured in pom.xml)
+# Copy source code
+COPY src ./src
+
+# Run tests using the "test" Spring profile
 RUN mvn clean verify -Dspring.profiles.active=test
+
+# Optional: Package JAR if needed
+# RUN mvn package -DskipTests
+
+# -------- Optional: Create slim runtime image --------
+# FROM openjdk:8-jre-alpine
+# COPY --from=build /app/target/*.jar app.jar
+# ENTRYPOINT ["java", "-jar", "app.jar"]
